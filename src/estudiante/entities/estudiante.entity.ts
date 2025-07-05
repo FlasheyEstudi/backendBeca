@@ -1,47 +1,54 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm'; // Añadido JoinColumn
 import { Beca_Estado } from '../../beca_estado/entities/beca_estado.entity';
-import { Beca_Carrera } from '../../beca_carrera/entities/beca_carrera.entity';
-import { Nota } from '../../nota/entities/nota.entity';
+import { Carrera } from '../../carrera/entities/carrera.entity';
 import { Asistencia } from '../../asistencia/entities/asistencia.entity';
+import { Nota } from '../../nota/entities/nota.entity';
 
 @Entity('beca_estudiante')
 export class Estudiante {
   @PrimaryGeneratedColumn()
   Id: number;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ type: 'varchar', length: 100, nullable: false })
   Nombre: string;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ type: 'varchar', length: 100, nullable: false })
   Apellido: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'int', nullable: false })
   Edad: number;
 
-  @Column({ length: 100, nullable: false, unique: true })
+  @Column({ type: 'varchar', length: 100, nullable: false })
   Correo: string;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  Fecha_Registro: Date;
+  @Column({ type: 'int', nullable: false })
+  EstadoId: number;
 
-  @Column({ type: 'datetime', nullable: true })
-  Fecha_Modificacion: Date;
+  @Column({ type: 'int', nullable: false })
+  CarreraId: number;
 
-  @ManyToOne(() => Beca_Estado, estado => estado.estudiantes, { eager: true })
-  Estado: Beca_Estado;
-
-  @ManyToOne(() => Beca_Carrera, carrera => carrera.estudiantes, { eager: true })
-  Carrera: Beca_Carrera;
-
-  @OneToMany(() => Nota, nota => nota.Estudiante)
-  notas: Nota[];
-
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: false })
   Anio: number;
 
-  @Column({ type: 'enum', enum: ['Diurno', 'Sabatino', 'Dominical'], nullable: true })
+  @Column({
+    type: 'enum',
+    enum: ['Diurno', 'Sabatino', 'Dominical'],
+    default: 'Diurno',
+    nullable: false,
+  })
   Horario: 'Diurno' | 'Sabatino' | 'Dominical';
 
-  @OneToMany(() => Asistencia, asistencia => asistencia.Estudiante) // Nueva relación
+  @ManyToOne(() => Beca_Estado, (estado) => estado.estudiantes, { eager: true })
+  @JoinColumn({ name: 'EstadoId' })
+  estado: Beca_Estado;
+
+  @ManyToOne(() => Carrera, (carrera) => carrera.estudiantes, { eager: true })
+  @JoinColumn({ name: 'CarreraId' })
+  carrera: Carrera;
+
+  @OneToMany(() => Asistencia, (asistencia) => asistencia.estudiante)
   asistencias: Asistencia[];
+
+  @OneToMany(() => Nota, (nota) => nota.estudiante)
+  notas: Nota[];
 }

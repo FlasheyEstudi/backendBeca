@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AsignaturaService } from './asignatura.service';
-import { AsignaturaController } from './asignatura.controller';
 import { Asignatura } from './entities/asignatura.entity';
+import { AsignaturaController } from './asignatura.controller';
+import { AsignaturaService } from './asignatura.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Asignatura])],
-  providers: [AsignaturaService],
   controllers: [AsignaturaController],
-  exports: [TypeOrmModule], // Exporta el repositorio
+  providers: [AsignaturaService],
 })
 export class AsignaturaModule {}

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Beca_Carrera } from './entities/carrera.entity';
-import { CarreraService } from './carrera.service';
+import { Carrera } from './entities/carrera.entity';
 import { CarreraController } from './carrera.controller';
+import { CarreraService } from './carrera.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Beca_Carrera])],
-  providers: [CarreraService],
+  imports: [TypeOrmModule.forFeature([Carrera])],
   controllers: [CarreraController],
+  providers: [CarreraService],
 })
 export class CarreraModule {}

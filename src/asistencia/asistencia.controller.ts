@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AsistenciaService } from './asistencia.service';
 import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
 
@@ -7,13 +7,12 @@ export class AsistenciaController {
   constructor(private readonly asistenciaService: AsistenciaService) {}
 
   @Post()
-  async save(@Body() createAsistenciaDto: CreateAsistenciaDto) {
-    const result = await this.asistenciaService.saveAsistencia(createAsistenciaDto);
-    return result;
+  async create(@Body() createAsistenciaDto: CreateAsistenciaDto) {
+    return this.asistenciaService.create(createAsistenciaDto);
   }
 
   @Get()
-  async findAll() {
+  findAll() {
     return this.asistenciaService.findAll();
   }
 }

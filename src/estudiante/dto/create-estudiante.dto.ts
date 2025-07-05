@@ -1,12 +1,6 @@
-import { IsNumber, IsString, IsEmail, IsNotEmpty, IsObject } from 'class-validator';
-import { Beca_Estado } from '../../beca_estado/entities/beca_estado.entity';
-import { Beca_Carrera } from '../../beca_carrera/entities/beca_carrera.entity';
+import { IsString, IsInt, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 
 export class CreateEstudianteDto {
-  @IsNumber()
-  @IsNotEmpty()
-  Id: number;
-
   @IsString()
   @IsNotEmpty()
   Nombre: string;
@@ -15,7 +9,7 @@ export class CreateEstudianteDto {
   @IsNotEmpty()
   Apellido: string;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   Edad: number;
 
@@ -23,13 +17,19 @@ export class CreateEstudianteDto {
   @IsNotEmpty()
   Correo: string;
 
-  @IsObject()
+  @IsInt()
   @IsNotEmpty()
-  Estado: Partial<Beca_Estado>; // Solo necesita el Id para la relación
+  EstadoId: number;
 
-  @IsObject()
+  @IsInt()
   @IsNotEmpty()
-  Carrera: Partial<Beca_Carrera>; // Solo necesita el Id para la relación
-  Anio: any;
-  Horario: any;
+  CarreraId: number;
+
+  @IsInt()
+  @IsNotEmpty()
+  Anio: number;
+
+  @IsEnum(['Diurno', 'Sabatino', 'Dominical'])
+  @IsNotEmpty()
+  Horario: 'Diurno' | 'Sabatino' | 'Dominical';
 }

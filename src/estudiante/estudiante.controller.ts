@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 
@@ -7,13 +7,12 @@ export class EstudianteController {
   constructor(private readonly estudianteService: EstudianteService) {}
 
   @Post()
-  async save(@Body() createEstudianteDto: CreateEstudianteDto) {
-    const result = await this.estudianteService.saveEstudiante(createEstudianteDto);
-    return result;
+  async create(@Body() createEstudianteDto: CreateEstudianteDto) {
+    return this.estudianteService.create(createEstudianteDto);
   }
 
   @Get()
-  async findAll() {
+  findAll() {
     return this.estudianteService.findAll();
   }
 }

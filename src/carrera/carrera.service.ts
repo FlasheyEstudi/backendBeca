@@ -1,41 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Beca_Carrera } from './entities/carrera.entity';
-import { CreateCarreraDto } from './dto/create-carrera.dto';
+import { Carrera } from './entities/carrera.entity';
 
 @Injectable()
 export class CarreraService {
-  private readonly logger = new Logger(CarreraService.name);
-
   constructor(
-    @InjectRepository(Beca_Carrera)
-    private readonly carreraRepository: Repository<Beca_Carrera>,
+    @InjectRepository(Carrera)
+    private readonly carreraRepository: Repository<Carrera>,
   ) {}
 
-  async saveCarrera(createCarreraDto: CreateCarreraDto) {
-    try {
-      const carrera = this.carreraRepository.create({
-        Nombre: createCarreraDto.Nombre,
-        Horario: createCarreraDto.Horario,
-      });
-      const result = await this.carreraRepository.save(carrera);
-      this.logger.log(`Carrera guardada: ${JSON.stringify(result)}`);
-      return { NewId: result.Id };
-    } catch (error) {
-      this.logger.error('Error al guardar carrera', error.stack);
-      throw error;
-    }
+  async findAll() {
+    return await this.carreraRepository.find();
   }
 
-  async findAll() {
-    try {
-      const result = await this.carreraRepository.find();
-      this.logger.log(`Carreras encontradas: ${JSON.stringify(result)}`);
-      return result;
-    } catch (error) {
-      this.logger.error('Error al buscar carreras', error.stack);
-      throw error;
-    }
+  async findOne(id: number) {
+    const carrera = await this.carreraRepository.findOne({ where: { Id: id } });
+    if (!carrera) throw new Error('Carrera no encontrada');
+    return carrera;
   }
 }

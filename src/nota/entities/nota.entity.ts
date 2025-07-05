@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from 'typeorm';
 import { Estudiante } from '../../estudiante/entities/estudiante.entity';
 import { Asignatura } from '../../asignatura/entities/asignatura.entity';
 
@@ -7,15 +7,17 @@ export class Nota {
   @PrimaryGeneratedColumn()
   Id: number;
 
-  @ManyToOne(() => Estudiante, { eager: true })
-  Estudiante: Estudiante;
+  @ManyToOne(() => Estudiante, (estudiante) => estudiante.notas, { eager: true })
+  @JoinColumn({ name: 'EstudianteId' })
+  estudiante: Estudiante;
 
-  @ManyToOne(() => Asignatura, { eager: true })
-  Asignatura: Asignatura;
+  @ManyToOne(() => Asignatura, (asignatura) => asignatura.notas, { eager: true })
+  @JoinColumn({ name: 'AsignaturaId' })
+  asignatura: Asignatura;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
-  Nota: number;
+  Nota: number; // Cambiado de 'Valor' a 'Nota' para coincidir con la tabla
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  Fecha_Registro: Date;
+  @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
+  Fecha_Registro: Date; // Agregado para coincidir con la tabla
 }

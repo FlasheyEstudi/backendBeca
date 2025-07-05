@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { NotaService } from './nota.service';
 import { CreateNotaDto } from './dto/create-nota.dto';
 
@@ -7,13 +7,12 @@ export class NotaController {
   constructor(private readonly notaService: NotaService) {}
 
   @Post()
-  async save(@Body() createNotaDto: CreateNotaDto) {
-    const result = await this.notaService.saveNota(createNotaDto);
-    return result;
+  async create(@Body() createNotaDto: CreateNotaDto) {
+    return this.notaService.create(createNotaDto);
   }
 
   @Get()
-  async findAll() {
+  findAll() {
     return this.notaService.findAll();
   }
 }

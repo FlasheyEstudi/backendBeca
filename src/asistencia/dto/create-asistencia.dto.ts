@@ -1,25 +1,17 @@
-import { IsNumber, IsNotEmpty, IsDate, IsBoolean, IsObject } from 'class-validator';
-import { Type } from 'class-transformer'; // Importa Type de class-transformer
-import { Estudiante } from '../../estudiante/entities/estudiante.entity';
-import { Asignatura } from '../../asignatura/entities/asignatura.entity';
+import { IsInt, IsDateString, IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class CreateAsistenciaDto {
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
-  Id: number;
+  EstudianteId: number;
 
-  @IsObject()
+  @IsInt()
   @IsNotEmpty()
-  Estudiante: Partial<Estudiante>;
+  AsignaturaId: number;
 
-  @IsObject()
+  @IsDateString()
   @IsNotEmpty()
-  Asignatura: Partial<Asignatura>;
-
-  @IsDate()
-  @IsNotEmpty()
-  @Type(() => Date) // Transforma la cadena en un objeto Date
-  Fecha: Date;
+  Fecha: string;
 
   @IsBoolean()
   @IsNotEmpty()

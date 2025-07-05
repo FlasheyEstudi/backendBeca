@@ -6,9 +6,9 @@ export class Beca_Estado {
   @PrimaryGeneratedColumn()
   Id: number;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ type: 'varchar', length: 50, nullable: false })
   Nombre: string;
 
-  @OneToMany(() => Estudiante, estudiante => estudiante.Estado)
+  @OneToMany(() => Estudiante, (estudiante) => estudiante.estado)
   estudiantes: Estudiante[];
 }

@@ -1,18 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AsistenciaService } from './asistencia.service';
-import { AsistenciaController } from './asistencia.controller';
 import { Asistencia } from './entities/asistencia.entity';
-import { EstudianteModule } from '../estudiante/estudiante.module';
-import { AsignaturaModule } from '../asignatura/asignatura.module';
+import { AsistenciaController } from './asistencia.controller';
+import { AsistenciaService } from './asistencia.service';
+import { Estudiante } from '../estudiante/entities/estudiante.entity';
+import { Asignatura } from '../asignatura/entities/asignatura.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Asistencia]),
-    EstudianteModule, // Proporciona EstudianteRepository
-    AsignaturaModule, // Proporciona AsignaturaRepository
-  ],
-  providers: [AsistenciaService],
+  imports: [TypeOrmModule.forFeature([Asistencia, Estudiante, Asignatura])],
   controllers: [AsistenciaController],
+  providers: [AsistenciaService],
 })
 export class AsistenciaModule {}

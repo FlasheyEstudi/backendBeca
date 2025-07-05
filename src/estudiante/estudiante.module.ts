@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EstudianteService } from './estudiante.service';
-import { EstudianteController } from './estudiante.controller';
 import { Estudiante } from './entities/estudiante.entity';
+import { EstudianteController } from './estudiante.controller';
+import { EstudianteService } from './estudiante.service';
+import { Beca_Estado } from '../beca_estado/entities/beca_estado.entity';
+import { Carrera } from '../carrera/entities/carrera.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Estudiante])],
-  providers: [EstudianteService],
+  imports: [TypeOrmModule.forFeature([Estudiante, Beca_Estado, Carrera])],
   controllers: [EstudianteController],
-  exports: [TypeOrmModule], // Exporta el repositorio para que otros módulos lo usen
+  providers: [EstudianteService],
 })
 export class EstudianteModule {}

@@ -1,15 +1,11 @@
-import { IsNumber, IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsInt, IsNotEmpty } from 'class-validator';
 
 export class CreateAsignaturaDto {
-  @IsNumber()
-  @IsNotEmpty()
-  Id: number;
-
   @IsString()
   @IsNotEmpty()
   Nombre: string;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   Creditos: number;
 }
