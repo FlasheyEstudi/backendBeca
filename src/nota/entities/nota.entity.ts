@@ -16,8 +16,11 @@ export class Nota {
   asignatura: Asignatura;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
-  Nota: number; // Cambiado de 'Valor' a 'Nota' para coincidir con la tabla
+  Nota: number;
 
   @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
-  Fecha_Registro: Date; // Agregado para coincidir con la tabla
+  Fecha_Registro: Date;
+
+  @Column() // Nueva columna
+  periodoAcademicoId: number;
 }

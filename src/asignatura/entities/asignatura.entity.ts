@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Asistencia } from '../../asistencia/entities/asistencia.entity';
-import { Nota } from '../../nota/entities/nota.entity';
+// src/asignatura/entities/asignatura.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm'; // Añadido OneToMany
+import { Carrera } from '../../carrera/entities/carrera.entity'; // Asegura la ruta correcta
+import { Nota } from '../../nota/entities/nota.entity'; // Importa la entidad Nota
 
 @Entity('beca_asignatura')
 export class Asignatura {
@@ -13,9 +14,15 @@ export class Asignatura {
   @Column({ type: 'int', nullable: false })
   Creditos: number;
 
-  @OneToMany(() => Asistencia, (asistencia) => asistencia.asignatura)
-  asistencias: Asistencia[];
+  @Column({ name: 'CarreraId', type: 'int', nullable: false })
+  CarreraId: number;
 
-  @OneToMany(() => Nota, (nota) => nota.asignatura)
-  notas: Nota[];
+  @ManyToOne(() => Carrera)
+  @JoinColumn({ name: 'CarreraId' })
+  carrera: Carrera;
+
+  // --- NUEVA RELACIÓN AÑADIDA ---
+  @OneToMany(() => Nota, (nota) => nota.asignatura) // Define la relación OneToMany a Nota
+  notas: Nota[]; // Propiedad 'notas' para la relación inversa
+  // --- FIN NUEVA RELACIÓN ---
 }

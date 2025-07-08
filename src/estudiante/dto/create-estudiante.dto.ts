@@ -1,35 +1,46 @@
-import { IsString, IsInt, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString, IsInt, IsEmail, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export enum Horario { // Añade 'export' antes de 'enum'
+  Diurno = 'Diurno',
+  Sabatino = 'Sabatino',
+  Dominical = 'Dominical',
+}
 
 export class CreateEstudianteDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   Nombre: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   Apellido: string;
 
-  @IsInt()
   @IsNotEmpty()
+  @IsInt()
+  @Type(() => Number)
   Edad: number;
 
-  @IsEmail()
   @IsNotEmpty()
+  @IsEmail()
   Correo: string;
 
-  @IsInt()
   @IsNotEmpty()
+  @IsInt()
+  @Type(() => Number)
   EstadoId: number;
 
-  @IsInt()
   @IsNotEmpty()
+  @IsInt()
+  @Type(() => Number)
   CarreraId: number;
 
-  @IsInt()
   @IsNotEmpty()
+  @IsInt()
+  @Type(() => Number)
   Anio: number;
 
-  @IsEnum(['Diurno', 'Sabatino', 'Dominical'])
   @IsNotEmpty()
-  Horario: 'Diurno' | 'Sabatino' | 'Dominical';
+  @IsEnum(Horario)
+  Horario: Horario;
 }

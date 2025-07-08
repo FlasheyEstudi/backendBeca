@@ -4,10 +4,12 @@ import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 
 @Controller('estudiante')
 export class EstudianteController {
+  // Constructor para inyectar EstudianteService
   constructor(private readonly estudianteService: EstudianteService) {}
 
   @Post()
-  async create(@Body() createEstudianteDto: CreateEstudianteDto) {
+  create(@Body() createEstudianteDto: CreateEstudianteDto) {
+    // console.log('DTO recibido en el controlador:', createEstudianteDto); // Línea para depuración, puedes quitarla después
     return this.estudianteService.create(createEstudianteDto);
   }
 

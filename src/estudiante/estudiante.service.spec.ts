@@ -1,45 +1,30 @@
-// src/estudiante/estudiante.service.spec.ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { EstudianteService } from './estudiante.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Estudiante } from './entities/estudiante.entity';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Estudiante } from './entities/estudiante.entity';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 
-describe('EstudianteService', () => {
-  let service: EstudianteService;
-  let repository: Repository<Estudiante>;
+@Injectable()
+export class EstudianteService {
+  constructor(
+    @InjectRepository(Estudiante)
+    private readonly estudianteRepository: Repository<Estudiante>,
+  ) {}
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        EstudianteService,
-        {
-          provide: getRepositoryToken(Estudiante),
-          useClass: Repository,
-        },
-      ],
-    }).compile();
+  async create(createEstudianteDto: CreateEstudianteDto): Promise<Estudiante> {
+    console.log('Datos a crear:', createEstudianteDto);
+    try {
+      const estudiante = this.estudianteRepository.create(createEstudianteDto);
+      return await this.estudianteRepository.save(estudiante);
+    } catch (error) {
+      console.error('Error al guardar estudiante:', error);
+      throw new HttpException('Error al guardar en la base de datos', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
-    service = module.get<EstudianteService>(EstudianteService);
-    repository = module.get<Repository<Estudiante>>(getRepositoryToken(Estudiante));
-  });
-
-  it('should create an estudiante', async () => {
-    const estudianteDto: CreateEstudianteDto = {
-      Nombre: 'Juan',
-      Apellido: 'Pérez',
-      Edad: 20,
-      Correo: 'juan@example.com',
-      EstadoId: 1,
-      CarreraId: 1,
-      Anio: 1,
-      Horario: 'Diurno', // Usa un valor del enum
-    };
-    jest.spyOn(repository, 'create').mockReturnValue(estudianteDto as any);
-    jest.spyOn(repository, 'save').mockResolvedValue({ Id: 1, ...estudianteDto } as any);
-
-    const result = await service.saveEstudiante(estudianteDto);
-    expect(result).toEqual({ NewId: 1 });
-  });
-});
+  async findAll(): Promise<Estudiante[]> {
+    return this.estudianteRepository.find({
+      relations: ['estado', 'carrera'],
+    });
+  }
+}

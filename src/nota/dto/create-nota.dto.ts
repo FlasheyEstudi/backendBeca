@@ -13,5 +13,9 @@ export class CreateNotaDto {
   @IsNotEmpty()
   @Min(0)
   @Max(100)
-  Nota: number; // Cambiado de 'Valor' a 'Nota'
+  Nota: number;
+
+  @IsInt() // Agregamos validación para PeriodoAcademicoId
+  @IsNotEmpty() // Este campo es obligatorio
+  PeriodoAcademicoId: number; // Agrega este campo
 }
