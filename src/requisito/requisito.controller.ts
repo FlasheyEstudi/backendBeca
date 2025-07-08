@@ -1,12 +1,25 @@
-import { Controller, Get } from '@nestjs/common';
-import { RequisitoService } from './requisito.service';
+    // src/beca_requisito/beca_requisito.controller.ts
+    import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+    import { BecaRequisitoService } from './requisito.service'; // Importa el servicio
+    import { CreateRequisitoDto } from './dto/create-requisito.dto'; // Importa el DTO
 
-@Controller('requisito')
-export class RequisitoController {
-  constructor(private readonly requisitoService: RequisitoService) {}
+    @Controller('beca-requisito') // Esta línea define la URL base para este controlador
+    export class BecaRequisitoController {
+      constructor(private readonly becaRequisitoService: BecaRequisitoService) {}
 
-  @Get()
-  findAll() {
-    return this.requisitoService.findAll();
-  }
-}
+      @Post()
+      async create(@Body() createRequisitoDto: CreateRequisitoDto) {
+        return this.becaRequisitoService.create(createRequisitoDto);
+      }
+
+      @Get()
+      findAll() {
+        return this.becaRequisitoService.findAll();
+      }
+
+      @Get(':id')
+      findOne(@Param('id') id: string) {
+        return this.becaRequisitoService.findOne(Number(id));
+      }
+    }
+    

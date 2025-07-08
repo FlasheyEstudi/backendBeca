@@ -2,21 +2,21 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+// Importa tus módulos existentes
 import { BecaEstadoModule } from './beca_estado/beca_estado.module';
-import { CarreraModule } from './carrera/carrera.module';
+import { CarreraModule } from './beca_carrera/beca_carrera.module';
 import { EstudianteModule } from './estudiante/estudiante.module';
 import { AsignaturaModule } from './asignatura/asignatura.module';
 import { AsistenciaModule } from './asistencia/asistencia.module';
-import { NotaModule } from './nota/nota.module'; // Ensure this line exists
-import { TipoBecaModule } from './tipobeca/tipobeca.module';
+import { NotaModule } from './nota/nota.module';
+import { TipoBecaModule } from './tipobeca/tipobeca.module'; // Asegura esta importación
 import { PeriodoAcademicoModule } from './periodoacademico/periodoacademico.module';
-import { RequisitoModule } from './requisito/requisito.module';
+import { RequisitoModule } from './requisito/requisito.module'; // Asegura esta importación
 import { BecaModule } from './beca/beca.module';
-// C:\becas-app\src\app.module.ts
-// ... otras importaciones
-import { SolicitudBecaModule } from './beca_solicitudbeca/solicitudbeca.module'; // Línea 15: ¡SIN ../src/!
-import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.module'; // Línea 16: ¡SIN ../src/!
-// ...
+import { SolicitudBecaModule } from './beca_solicitudbeca/solicitudbeca.module';
+import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.module';
+
 
 @Module({
   imports: [
@@ -35,10 +35,10 @@ import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.modul
     EstudianteModule,
     AsignaturaModule,
     AsistenciaModule,
-    NotaModule, // Ensure this is included
-    TipoBecaModule,
+    NotaModule,
+    TipoBecaModule, // Asegúrate de que esté aquí
     PeriodoAcademicoModule,
-    RequisitoModule,
+    RequisitoModule, // Asegúrate de que esté aquí
     BecaModule,
     SolicitudBecaModule,
     AsignacionBecaModule,
@@ -46,4 +46,4 @@ import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.modul
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {} // Asegúrate de que 'export' esté presente

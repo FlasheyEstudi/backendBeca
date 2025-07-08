@@ -1,3 +1,4 @@
+// src/beca_estado/beca_estado.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Beca_Estado } from './entities/beca_estado.entity';

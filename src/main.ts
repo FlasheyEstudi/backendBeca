@@ -10,6 +10,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   }));
-  await app.listen(3000);
+  await app.listen(4200); // Puerto ajustado a 4200
+  console.log(`Application is running on: ${await app.getUrl()}`); // Añadido log para confirmar el puerto
 }
 bootstrap();
