@@ -1,6 +1,6 @@
 // src/beca/beca.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm'; // Importa TypeOrmModule
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { BecaService } from './beca.service';
 import { BecaController } from './beca.controller';
 import { Beca } from './entities/beca.entity'; // Importa la entidad Beca

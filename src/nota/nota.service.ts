@@ -1,23 +1,24 @@
 // src/nota/nota.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Nota } from './entities/nota.entity';
 import { CreateNotaDto } from './dto/create-nota.dto';
-import { Estudiante } from '../estudiante/entities/estudiante.entity'; // Importar la entidad Estudiante
-import { Asignatura } from '../asignatura/entities/asignatura.entity'; // Importar la entidad Asignatura
-import { PeriodoAcademico } from '../periodoacademico/entities/periodoacademico.entity'; // Importar la entidad PeriodoAcademico
+import { UpdateNotaDto } from './dto/update-nota.dto'; // Importa el DTO de actualización
+import { Estudiante } from '../estudiante/entities/estudiante.entity';
+import { Asignatura } from '../asignatura/entities/asignatura.entity';
+import { PeriodoAcademico } from '../periodoacademico/entities/periodoacademico.entity';
 
 @Injectable()
 export class NotaService {
   constructor(
     @InjectRepository(Nota)
     private readonly notaRepository: Repository<Nota>,
-    @InjectRepository(Estudiante) // Inyectar el repositorio de Estudiante
+    @InjectRepository(Estudiante)
     private readonly estudianteRepository: Repository<Estudiante>,
-    @InjectRepository(Asignatura) // Inyectar el repositorio de Asignatura
+    @InjectRepository(Asignatura)
     private readonly asignaturaRepository: Repository<Asignatura>,
-    @InjectRepository(PeriodoAcademico) // Inyectar el repositorio de PeriodoAcademico
+    @InjectRepository(PeriodoAcademico)
     private readonly periodoAcademicoRepository: Repository<PeriodoAcademico>,
   ) {}
 
@@ -40,7 +41,20 @@ export class NotaService {
       throw new NotFoundException(`Periodo Académico con ID ${createNotaDto.PeriodoAcademicoId} no encontrado`);
     }
 
-    // 4. Crear la instancia de Nota, asignando los IDs de las claves foráneas directamente
+    // 4. Opcional: Verificar si ya existe una nota para el mismo estudiante, asignatura y período
+    const existingNota = await this.notaRepository.findOne({
+      where: {
+        EstudianteId: createNotaDto.EstudianteId,
+        AsignaturaId: createNotaDto.AsignaturaId,
+        PeriodoAcademicoId: createNotaDto.PeriodoAcademicoId,
+      }
+    });
+
+    if (existingNota) {
+      throw new ConflictException(`Ya existe una nota para el estudiante ${createNotaDto.EstudianteId} en la asignatura ${createNotaDto.AsignaturaId} para el período ${createNotaDto.PeriodoAcademicoId}.`);
+    }
+
+    // 5. Crear la instancia de Nota
     const nota = this.notaRepository.create({
       Calificacion: createNotaDto.Calificacion,
       EstudianteId: createNotaDto.EstudianteId,
@@ -50,11 +64,67 @@ export class NotaService {
     });
 
     const result = await this.notaRepository.save(nota);
-    return { NewId: result.Id }; // Aseguramos que result es una sola entidad y tiene .Id
+    return { NewId: result.Id };
   }
 
   async findAll() {
     // Incluir las relaciones para que se carguen los datos de estudiante, asignatura y periodoAcademico
     return await this.notaRepository.find({ relations: ['estudiante', 'asignatura', 'periodoAcademico'] });
+  }
+
+  // --- NUEVO: Método para obtener una Nota por ID ---
+  async findOne(id: number): Promise<Nota> {
+    const nota = await this.notaRepository.findOne({
+      where: { Id: id },
+      relations: ['estudiante', 'asignatura', 'periodoAcademico'],
+    });
+    if (!nota) {
+      throw new NotFoundException(`Nota con ID ${id} no encontrada.`);
+    }
+    return nota;
+  }
+
+  // --- NUEVO: Método para actualizar una Nota ---
+  async update(id: number, updateNotaDto: UpdateNotaDto): Promise<Nota> {
+    const nota = await this.notaRepository.findOne({ where: { Id: id } });
+    if (!nota) {
+      throw new NotFoundException(`Nota con ID ${id} no encontrada.`);
+    }
+
+    // Si se intenta actualizar EstudianteId, verificar que el nuevo ID exista
+    if (updateNotaDto.EstudianteId && updateNotaDto.EstudianteId !== nota.EstudianteId) {
+      const estudiante = await this.estudianteRepository.findOne({ where: { Id: updateNotaDto.EstudianteId } });
+      if (!estudiante) {
+        throw new NotFoundException(`Estudiante con ID ${updateNotaDto.EstudianteId} no encontrado.`);
+      }
+    }
+
+    // Si se intenta actualizar AsignaturaId, verificar que el nuevo ID exista
+    if (updateNotaDto.AsignaturaId && updateNotaDto.AsignaturaId !== nota.AsignaturaId) {
+      const asignatura = await this.asignaturaRepository.findOne({ where: { Id: updateNotaDto.AsignaturaId } });
+      if (!asignatura) {
+        throw new NotFoundException(`Asignatura con ID ${updateNotaDto.AsignaturaId} no encontrada.`);
+      }
+    }
+
+    // Si se intenta actualizar PeriodoAcademicoId, verificar que el nuevo ID exista
+    if (updateNotaDto.PeriodoAcademicoId && updateNotaDto.PeriodoAcademicoId !== nota.PeriodoAcademicoId) {
+      const periodoAcademico = await this.periodoAcademicoRepository.findOne({ where: { Id: updateNotaDto.PeriodoAcademicoId } });
+      if (!periodoAcademico) {
+        throw new NotFoundException(`Periodo Académico con ID ${updateNotaDto.PeriodoAcademicoId} no encontrado.`);
+      }
+    }
+
+    // Aplica los cambios del DTO al objeto de la nota existente
+    this.notaRepository.merge(nota, updateNotaDto);
+    return await this.notaRepository.save(nota);
+  }
+
+  // --- NUEVO: Método para eliminar una Nota ---
+  async remove(id: number): Promise<void> {
+    const result = await this.notaRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Nota con ID ${id} no encontrada.`);
+    }
   }
 }

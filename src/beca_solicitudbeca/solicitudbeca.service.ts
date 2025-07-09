@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SolicitudBeca } from './entities/solicitudbeca.entity';
 import { CreateSolicitudBecaDto } from './dto/create-solicitudbeca.dto';
+import { UpdateSolicitudBecaDto } from './dto/update-solicitudbeca.dto'; // Importa el DTO de actualización
 import { Estudiante } from '../estudiante/entities/estudiante.entity'; // Importa Estudiante para validación
 import { Beca } from '../beca/entities/beca.entity'; // Importa Beca para validación
 
@@ -18,7 +19,7 @@ export class SolicitudBecaService {
     private readonly becaRepository: Repository<Beca>,
   ) {}
 
-  // --- NUEVO: Método para crear una SolicitudBeca ---
+  // Método para crear una SolicitudBeca
   async create(createSolicitudBecaDto: CreateSolicitudBecaDto): Promise<SolicitudBeca> {
     // 1. Verificar si el EstudianteId existe
     const estudiante = await this.estudianteRepository.findOne({ where: { Id: createSolicitudBecaDto.EstudianteId } });
@@ -54,8 +55,59 @@ export class SolicitudBecaService {
     return await this.solicitudBecaRepository.save(nuevaSolicitud);
   }
 
-  // --- NUEVO: Método para obtener todas las SolicitudesBeca ---
+  // Método para obtener todas las SolicitudesBeca
   async findAll(): Promise<SolicitudBeca[]> {
     return await this.solicitudBecaRepository.find({ relations: ['estudiante', 'beca'] }); // Incluye relaciones
+  }
+
+  // Método para obtener una SolicitudBeca por ID
+  async findOne(id: number): Promise<SolicitudBeca> {
+    const solicitud = await this.solicitudBecaRepository.findOne({ where: { Id: id }, relations: ['estudiante', 'beca'] });
+    if (!solicitud) {
+      throw new NotFoundException(`Solicitud de Beca con ID ${id} no encontrada.`);
+    }
+    return solicitud;
+  }
+
+  // --- NUEVO: Método para actualizar una SolicitudBeca ---
+  async update(id: number, updateSolicitudBecaDto: UpdateSolicitudBecaDto): Promise<SolicitudBeca> {
+    const solicitud = await this.solicitudBecaRepository.findOne({ where: { Id: id } });
+    if (!solicitud) {
+      throw new NotFoundException(`Solicitud de Beca con ID ${id} no encontrada.`);
+    }
+
+    // Si se intenta actualizar EstudianteId, verificar que el nuevo ID exista
+    if (updateSolicitudBecaDto.EstudianteId && updateSolicitudBecaDto.EstudianteId !== solicitud.EstudianteId) {
+      const estudiante = await this.estudianteRepository.findOne({ where: { Id: updateSolicitudBecaDto.EstudianteId } });
+      if (!estudiante) {
+        throw new NotFoundException(`Estudiante con ID ${updateSolicitudBecaDto.EstudianteId} no encontrado.`);
+      }
+    }
+
+    // Si se intenta actualizar BecaId, verificar que el nuevo ID exista
+    if (updateSolicitudBecaDto.BecaId && updateSolicitudBecaDto.BecaId !== solicitud.BecaId) {
+      const beca = await this.becaRepository.findOne({ where: { Id: updateSolicitudBecaDto.BecaId } });
+      if (!beca) {
+        throw new NotFoundException(`Beca con ID ${updateSolicitudBecaDto.BecaId} no encontrada.`);
+      }
+    }
+
+    // Manejar FechaSolicitud si se actualiza
+    if (updateSolicitudBecaDto.FechaSolicitud) {
+      solicitud.FechaSolicitud = new Date(updateSolicitudBecaDto.FechaSolicitud);
+      delete updateSolicitudBecaDto.FechaSolicitud; // Eliminar del DTO para que merge no intente asignar string a Date
+    }
+
+    // Aplica los cambios restantes del DTO al objeto de la solicitud existente
+    this.solicitudBecaRepository.merge(solicitud, updateSolicitudBecaDto);
+    return await this.solicitudBecaRepository.save(solicitud);
+  }
+
+  // --- NUEVO: Método para eliminar una SolicitudBeca ---
+  async remove(id: number): Promise<void> {
+    const result = await this.solicitudBecaRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Solicitud de Beca con ID ${id} no encontrada.`);
+    }
   }
 }
