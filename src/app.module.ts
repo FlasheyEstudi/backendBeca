@@ -28,7 +28,7 @@ import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.modul
       password: 'flash',
       database: 'bdbeca',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
+      synchronize: false, // Cambia a false en producción
     }),
     BecaEstadoModule,
     CarreraModule,

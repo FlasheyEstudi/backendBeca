@@ -21,5 +21,4 @@
       findOne(@Param('id') id: string) {
         return this.becaRequisitoService.findOne(Number(id));
       }
-    }
-    
+    } 

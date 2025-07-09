@@ -1,5 +1,6 @@
 // src/asistencia/entities/asistencia.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+// Ya no necesitamos importar forwardRef aquí si no se usa en los decoradores
 import { Estudiante } from '../../estudiante/entities/estudiante.entity'; // Asegura que esta ruta sea correcta
 import { Asignatura } from '../../asignatura/entities/asignatura.entity'; // Asegura que esta ruta sea correcta
 import { PeriodoAcademico } from '../../periodoacademico/entities/periodoacademico.entity'; // Asegura que esta ruta sea correcta
@@ -39,7 +40,8 @@ export class Asistencia {
   @Column({ name: 'AsignaturaId', type: 'int', nullable: false }) // Columna explícita para la clave foránea
   AsignaturaId: number;
 
-  @ManyToOne(() => PeriodoAcademico)
+  // --- Relación ManyToOne con PeriodoAcademico (sin forwardRef aquí) ---
+  @ManyToOne(() => PeriodoAcademico) // Referencia directa a la clase
   @JoinColumn({ name: 'PeriodoAcademicoId' }) // Esto define la columna de clave foránea
   periodoAcademico: PeriodoAcademico; // Propiedad para la relación
 }

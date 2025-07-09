@@ -1,26 +1,42 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from 'typeorm';
-import { Estudiante } from '../../estudiante/entities/estudiante.entity';
-import { Asignatura } from '../../asignatura/entities/asignatura.entity';
+// src/nota/entities/nota.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+// Ya no necesitamos importar forwardRef aquí si no se usa en los decoradores
+import { Estudiante } from '../../estudiante/entities/estudiante.entity'; // Asegura la ruta correcta
+import { Asignatura } from '../../asignatura/entities/asignatura.entity'; // ¡CORREGIDO: Usar 'from' en lugar de '=>'!
+import { PeriodoAcademico } from '../../periodoacademico/entities/periodoacademico.entity'; // Asegura la ruta correcta
 
-@Entity('beca_nota')
+@Entity('beca_nota') // Mapea a la tabla 'beca_nota' en tu base de datos
 export class Nota {
   @PrimaryGeneratedColumn()
   Id: number;
 
-  @ManyToOne(() => Estudiante, (estudiante) => estudiante.notas, { eager: true })
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false }) // Ejemplo de decimal para calificaciones
+  Calificacion: number;
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' }) // Fecha y hora de registro, con default
+  FechaRegistro: Date;
+
+  // --- Relación ManyToOne con Estudiante ---
+  @ManyToOne(() => Estudiante, (estudiante) => estudiante.notas)
   @JoinColumn({ name: 'EstudianteId' })
   estudiante: Estudiante;
 
-  @ManyToOne(() => Asignatura, (asignatura) => asignatura.notas, { eager: true })
+  @Column({ name: 'EstudianteId', type: 'int', nullable: false })
+  EstudianteId: number;
+
+  // --- Relación ManyToOne con Asignatura ---
+  @ManyToOne(() => Asignatura, (asignatura) => asignatura.notas)
   @JoinColumn({ name: 'AsignaturaId' })
   asignatura: Asignatura;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
-  Nota: number;
+  @Column({ name: 'AsignaturaId', type: 'int', nullable: false })
+  AsignaturaId: number;
 
-  @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
-  Fecha_Registro: Date;
+  // --- Relación ManyToOne con PeriodoAcademico (sin forwardRef aquí) ---
+  @ManyToOne(() => PeriodoAcademico, (periodoAcademico) => periodoAcademico.notas) // Referencia directa a la clase
+  @JoinColumn({ name: 'PeriodoAcademicoId' }) // Clave foránea en la DB
+  periodoAcademico: PeriodoAcademico; // ¡Esta es la propiedad que faltaba o estaba mal!
 
-  @Column() // Nueva columna
-  periodoAcademicoId: number;
+  @Column({ name: 'PeriodoAcademicoId', type: 'int', nullable: false }) // Columna explícita para la clave foránea
+  PeriodoAcademicoId: number;
 }
