@@ -2,18 +2,18 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Carrera } from './entities/beca_carrera.entity'; // Importa la entidad Carrera
-import { CreateCarreraDto } from './dto/beca_carrera.dto'; // Importa el DTO
+import { Carrera } from './entities/beca_carrera.entity';
+import { CreateCarreraDto } from './dto/create-carrera.dto'; // ¡RUTA CORREGIDA!
+import { UpdateCarreraDto } from './dto/update-carrera.dto'; // ¡RUTA CORREGIDA!
 
 @Injectable()
 export class BecaCarreraService {
   constructor(
-    @InjectRepository(Carrera) // Inyecta el repositorio de Carrera
+    @InjectRepository(Carrera)
     private readonly carreraRepository: Repository<Carrera>,
   ) {}
 
   async create(createCarreraDto: CreateCarreraDto): Promise<Carrera> {
-    // Opcional: Verificar si ya existe una carrera con el mismo nombre para evitar duplicados
     const existingCarrera = await this.carreraRepository.findOne({ where: { Nombre: createCarreraDto.Nombre } });
     if (existingCarrera) {
       throw new ConflictException(`La carrera con nombre '${createCarreraDto.Nombre}' ya existe.`);
@@ -24,7 +24,6 @@ export class BecaCarreraService {
   }
 
   async findAll(): Promise<Carrera[]> {
-    // Puedes incluir relaciones si quieres cargar datos relacionados (ej. estudiantes o asignaturas de la carrera)
     return await this.carreraRepository.find({ relations: ['estudiantes', 'asignaturas'] });
   }
 
@@ -34,5 +33,33 @@ export class BecaCarreraService {
       throw new NotFoundException(`Carrera con ID ${id} no encontrada`);
     }
     return carrera;
+  }
+
+  // --- Método para actualizar una carrera ---
+  async update(id: number, updateCarreraDto: UpdateCarreraDto): Promise<Carrera> {
+    const carrera = await this.carreraRepository.findOne({ where: { Id: id } });
+    if (!carrera) {
+      throw new NotFoundException(`Carrera con ID ${id} no encontrada`);
+    }
+
+    // Si se intenta cambiar el nombre, verificar que el nuevo nombre no exista ya
+    if (updateCarreraDto.Nombre && updateCarreraDto.Nombre !== carrera.Nombre) {
+      const existingCarrera = await this.carreraRepository.findOne({ where: { Nombre: updateCarreraDto.Nombre } });
+      if (existingCarrera && existingCarrera.Id !== id) {
+        throw new ConflictException(`La carrera con nombre '${updateCarreraDto.Nombre}' ya existe.`);
+      }
+    }
+
+    // Aplica los cambios del DTO al objeto de la carrera existente
+    this.carreraRepository.merge(carrera, updateCarreraDto);
+    return await this.carreraRepository.save(carrera);
+  }
+
+  // --- Método para eliminar una carrera ---
+  async remove(id: number): Promise<void> {
+    const result = await this.carreraRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Carrera con ID ${id} no encontrada`);
+    }
   }
 }

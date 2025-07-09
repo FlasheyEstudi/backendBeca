@@ -1,9 +1,9 @@
 // src/tipobeca/tipobeca.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TipoBeca } from './entities/tipobeca.entity'; // Importa la entidad TipoBeca
-import { TipoBecaController } from './tipobeca.controller'; // ¡CORREGIDO! Importa TipoBecaController
-import { TipoBecaService } from './tipobeca.service'; // ¡CORREGIDO! Importa TipoBecaService
+import { TipoBeca } from './entities/tipobeca.entity';
+import { TipoBecaController } from './tipobeca.controller';
+import { TipoBecaService } from './tipobeca.service'; // ¡IMPORTE AÑADIDO!
 
 @Module({
   imports: [TypeOrmModule.forFeature([TipoBeca])], // Asegura que la entidad TipoBeca esté listada

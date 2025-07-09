@@ -2,19 +2,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Requisito } from './entities/requisito.entity';
-import { BecaRequisitoController } from './requisito.controller'; // ¡CORREGIDO! Importa BecaRequisitoController
-import { BecaRequisitoService } from './requisito.service'; // ¡CORREGIDO! Importa BecaRequisitoService
-import { TipoBeca } from '../tipobeca/entities/tipobeca.entity'; // Importa la entidad TipoBeca
+import { BecaRequisitoController } from './requisito.controller';
+import { BecaRequisitoService } from './requisito.service';
+import { TipoBeca } from '../tipobeca/entities/tipobeca.entity'; // Import TipoBeca
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Requisito,
-      TipoBeca // Añade TipoBeca aquí para que su repositorio pueda ser inyectado
+      TipoBeca // Add TipoBeca here so its repository can be injected
     ])
   ],
-  controllers: [BecaRequisitoController], // Declara el controlador
-  providers: [BecaRequisitoService], // Declara el servicio
-  exports: [TypeOrmModule, BecaRequisitoService], // Exporta el servicio si otros módulos lo necesitan
+  controllers: [BecaRequisitoController],
+  providers: [BecaRequisitoService],
+  exports: [TypeOrmModule, BecaRequisitoService], // Export the service if other modules need it
 })
 export class RequisitoModule {}

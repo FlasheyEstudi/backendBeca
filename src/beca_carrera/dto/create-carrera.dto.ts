@@ -7,9 +7,7 @@ export class CreateCarreraDto {
   @MaxLength(100, { message: 'El nombre de la carrera no puede exceder los 100 caracteres.' })
   Nombre: string;
 
-  // --- NUEVA PROPIEDAD AÑADIDA: Horario ---
   @IsNotEmpty({ message: 'El horario de la carrera no puede estar vacío.' })
   @IsEnum(['Diurno', 'Sabatino', 'Dominical'], { message: 'El horario debe ser Diurno, Sabatino o Dominical.' })
   Horario: 'Diurno' | 'Sabatino' | 'Dominical';
-  // --- FIN NUEVA PROPIEDAD ---
 }
