@@ -1,10 +1,11 @@
 // src/asignatura/entities/asignatura.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm'; // Añadido OneToMany
-import { Carrera } from '../../carrera/entities/carrera.entity'; // Asegura la ruta correcta
+import { Carrera } from '../../beca_carrera/entities/beca_carrera.entity'; // Asegura la ruta correcta
 import { Nota } from '../../nota/entities/nota.entity'; // Importa la entidad Nota
+import { Asistencia } from '../../asistencia/entities/asistencia.entity'; // Importa la entidad Asistencia
 
 @Entity('beca_asignatura')
-export class Asignatura {
+export class Asignatura { // ¡Asegúrate de que 'export' esté aquí!
   @PrimaryGeneratedColumn()
   Id: number;
 
@@ -17,12 +18,16 @@ export class Asignatura {
   @Column({ name: 'CarreraId', type: 'int', nullable: false })
   CarreraId: number;
 
-  @ManyToOne(() => Carrera)
+  @ManyToOne(() => Carrera, (carrera) => carrera.asignaturas) // Asegúrate de que 'asignaturas' sea la propiedad inversa en Carrera
   @JoinColumn({ name: 'CarreraId' })
   carrera: Carrera;
 
-  // --- NUEVA RELACIÓN AÑADIDA ---
+  // --- RELACIÓN AÑADIDA: OneToMany con Nota ---
   @OneToMany(() => Nota, (nota) => nota.asignatura) // Define la relación OneToMany a Nota
   notas: Nota[]; // Propiedad 'notas' para la relación inversa
-  // --- FIN NUEVA RELACIÓN ---
+
+  // --- RELACIÓN AÑADIDA: OneToMany con Asistencia ---
+  @OneToMany(() => Asistencia, (asistencia) => asistencia.asignatura) // Define la relación OneToMany a Asistencia
+  asistencias: Asistencia[]; // ¡Propiedad 'asistencias' necesaria para la relación inversa!
+  // --- FIN NUEVAS RELACIONES ---
 }

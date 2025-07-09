@@ -1,13 +1,14 @@
 // src/estudiante/entities/estudiante.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { Beca_Estado } from '../../beca_estado/entities/beca_estado.entity'; // Asegura la ruta correcta
-import { Carrera } from '../../beca_carrera/entities/beca_carrera.entity'; // Asegura la ruta correcta
-import { Asistencia } from '../../asistencia/entities/asistencia.entity'; // Asegura la ruta correcta
-import { Nota } from '../../nota/entities/nota.entity'; // Asegura la ruta correcta
+import { Beca_Estado } from '../../beca_estado/entities/beca_estado.entity';
+import { Carrera } from '../../beca_carrera/entities/beca_carrera.entity';
+import { Asistencia } from '../../asistencia/entities/asistencia.entity';
+import { Nota } from '../../nota/entities/nota.entity';
+import { SolicitudBeca } from '../../beca_solicitudbeca/entities/solicitudbeca.entity'; // Importa SolicitudBeca
 
-@Entity('beca_estudiante') // Mapea a la tabla 'beca_estudiante' en tu base de datos
+@Entity('beca_estudiante')
 export class Estudiante {
-  @PrimaryGeneratedColumn() // Columna de ID autoincremental y clave primaria
+  @PrimaryGeneratedColumn()
   Id: number;
 
   @Column({ type: 'varchar', length: 100, nullable: false })
@@ -16,39 +17,41 @@ export class Estudiante {
   @Column({ type: 'varchar', length: 100, nullable: false })
   Apellido: string;
 
-  @Column({ type: 'date', nullable: true }) // Fecha de nacimiento, puede ser nula
-  FechaNacimiento: Date | null; // Tipado explícito para permitir 'null'
+  @Column({ type: 'date', nullable: true })
+  FechaNacimiento: Date | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  Direccion: string | null; // Tipado explícito para permitir 'null'
+  Direccion: string | null;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  Telefono: string | null; // Tipado explícito para permitir 'null'
+  Telefono: string | null;
 
-  @Column({ type: 'varchar', length: 100, nullable: false, unique: true }) // Correo electrónico, no nulo y único
+  @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
   CorreoElectronico: string;
 
-  // --- Relación ManyToOne con Beca_Estado ---
   @ManyToOne(() => Beca_Estado, (becaEstado) => becaEstado.estudiantes)
-  @JoinColumn({ name: 'EstadoId' }) // Clave foránea en la DB
+  @JoinColumn({ name: 'EstadoId' })
   estado: Beca_Estado;
 
-  @Column({ name: 'EstadoId', type: 'int', nullable: false }) // Columna explícita para la clave foránea
+  @Column({ name: 'EstadoId', type: 'int', nullable: false })
   EstadoId: number;
 
-  // --- Relación ManyToOne con Carrera ---
   @ManyToOne(() => Carrera, (carrera) => carrera.estudiantes)
-  @JoinColumn({ name: 'CarreraId' }) // Clave foránea en la DB
+  @JoinColumn({ name: 'CarreraId' })
   carrera: Carrera;
 
-  @Column({ name: 'CarreraId', type: 'int', nullable: false }) // Columna explícita para la clave foránea
+  @Column({ name: 'CarreraId', type: 'int', nullable: false })
   CarreraId: number;
 
-  // --- Relación OneToMany con Asistencia ---
   @OneToMany(() => Asistencia, (asistencia) => asistencia.estudiante)
   asistencias: Asistencia[];
 
-  // --- Relación OneToMany con Nota ---
   @OneToMany(() => Nota, (nota) => nota.estudiante)
   notas: Nota[];
+
+  // --- NUEVA RELACIÓN AÑADIDA: OneToMany con SolicitudBeca ---
+  // 'estudiante' es la propiedad en la entidad SolicitudBeca que apunta a este estudiante
+  @OneToMany(() => SolicitudBeca, (solicitudBeca) => solicitudBeca.estudiante)
+  solicitudesBeca: SolicitudBeca[];
+  // --- FIN NUEVA RELACIÓN ---
 }

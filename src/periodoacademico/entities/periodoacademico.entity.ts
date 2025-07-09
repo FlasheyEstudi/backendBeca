@@ -1,11 +1,12 @@
 // src/periodoacademico/entities/periodoacademico.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-// Ya no necesitamos importar forwardRef aquí si no se usa en los decoradores
-import { Asistencia } from '../../asistencia/entities/asistencia.entity'; // ¡CORREGIDO: Usar 'from' en lugar de '=>'!
+// No necesitamos importar forwardRef aquí para este uso en el decorador de TypeORM.
+// import { forwardRef } from '@nestjs/common';
+import { Asistencia } from '../../asistencia/entities/asistencia.entity'; // Asegura la ruta correcta
 import { Nota } from '../../nota/entities/nota.entity'; // Asegura la ruta correcta
 
 @Entity('beca_periodo_academico') // Mapea a la tabla 'beca_periodo_academico' en tu base de datos
-export class PeriodoAcademico {
+export class PeriodoAcademico { // ¡Asegúrate de que 'export' esté aquí!
   @PrimaryGeneratedColumn()
   Id: number;
 
@@ -18,11 +19,11 @@ export class PeriodoAcademico {
   @Column({ type: 'date', nullable: false })
   FechaFin: Date;
 
-  // Relación OneToMany con Asistencia (sin forwardRef en el decorador)
+  // Relación OneToMany con Asistencia (¡CORREGIDO: Sin forwardRef en el primer argumento!)
   @OneToMany(() => Asistencia, (asistencia) => asistencia.periodoAcademico)
   asistencias: Asistencia[];
 
-  // Relación OneToMany con Nota (sin forwardRef en el decorador)
+  // Relación OneToMany con Nota (¡CORREGIDO: Sin forwardRef en el primer argumento!)
   @OneToMany(() => Nota, (nota) => nota.periodoAcademico)
   notas: Nota[];
 }

@@ -1,12 +1,13 @@
 // src/nota/entities/nota.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-// Ya no necesitamos importar forwardRef aquí si no se usa en los decoradores
+// No necesitamos importar forwardRef aquí para este uso en el decorador de TypeORM.
+// import { forwardRef } from '@nestjs/common';
 import { Estudiante } from '../../estudiante/entities/estudiante.entity'; // Asegura la ruta correcta
-import { Asignatura } from '../../asignatura/entities/asignatura.entity'; // ¡CORREGIDO: Usar 'from' en lugar de '=>'!
+import { Asignatura } from '../../asignatura/entities/asignatura.entity'; // ¡RUTA Y SINTAXIS CORREGIDAS!
 import { PeriodoAcademico } from '../../periodoacademico/entities/periodoacademico.entity'; // Asegura la ruta correcta
 
 @Entity('beca_nota') // Mapea a la tabla 'beca_nota' en tu base de datos
-export class Nota {
+export class Nota { // ¡Asegúrate de que 'export' esté aquí!
   @PrimaryGeneratedColumn()
   Id: number;
 
@@ -24,16 +25,16 @@ export class Nota {
   @Column({ name: 'EstudianteId', type: 'int', nullable: false })
   EstudianteId: number;
 
-  // --- Relación ManyToOne con Asignatura ---
-  @ManyToOne(() => Asignatura, (asignatura) => asignatura.notas)
+  // --- Relación ManyToOne con Asignatura (¡CORREGIDO: Sin forwardRef en el primer argumento!) ---
+  @ManyToOne(() => Asignatura, (asignatura) => asignatura.notas) // El primer argumento es una función que devuelve directamente la clase Asignatura
   @JoinColumn({ name: 'AsignaturaId' })
   asignatura: Asignatura;
 
   @Column({ name: 'AsignaturaId', type: 'int', nullable: false })
   AsignaturaId: number;
 
-  // --- Relación ManyToOne con PeriodoAcademico (sin forwardRef aquí) ---
-  @ManyToOne(() => PeriodoAcademico, (periodoAcademico) => periodoAcademico.notas) // Referencia directa a la clase
+  // --- Relación ManyToOne con PeriodoAcademico (¡CORREGIDO: Sin forwardRef en el primer argumento!) ---
+  @ManyToOne(() => PeriodoAcademico, (periodoAcademico) => periodoAcademico.notas) // El primer argumento es una función que devuelve directamente la clase PeriodoAcademico
   @JoinColumn({ name: 'PeriodoAcademicoId' }) // Clave foránea en la DB
   periodoAcademico: PeriodoAcademico; // ¡Esta es la propiedad que faltaba o estaba mal!
 
