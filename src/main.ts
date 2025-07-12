@@ -1,16 +1,14 @@
-import 'reflect-metadata';
+// En tu main.ts de NestJS (o donde inicialices tu app)
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cors({
-    origin: 'http://localhost:4200', // Puerto del frontend Angular
+  app.enableCors({
+    origin: 'http://localhost:4200', // Permite solo tu frontend
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  }));
-  await app.listen(4200); // Puerto ajustado a 4200
-  console.log(`Application is running on: ${await app.getUrl()}`); // Añadido log para confirmar el puerto
+    credentials: true, // Si usas cookies o autenticación basada en sesión
+  });
+  await app.listen(3000);
 }
 bootstrap();

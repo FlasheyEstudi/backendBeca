@@ -10,13 +10,12 @@ import { EstudianteModule } from './estudiante/estudiante.module';
 import { AsignaturaModule } from './asignatura/asignatura.module';
 import { AsistenciaModule } from './asistencia/asistencia.module';
 import { NotaModule } from './nota/nota.module';
-import { TipoBecaModule } from './tipobeca/tipobeca.module'; // Asegura esta importación
+import { TipoBecaModule } from './tipobeca/tipobeca.module';
 import { PeriodoAcademicoModule } from './periodoacademico/periodoacademico.module';
-import { RequisitoModule } from './requisito/requisito.module'; // Asegura esta importación
+import { RequisitoModule } from './requisito/requisito.module';
 import { BecaModule } from './beca/beca.module';
 import { SolicitudBecaModule } from './beca_solicitudbeca/solicitudbeca.module';
 import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.module';
-
 
 @Module({
   imports: [
@@ -27,8 +26,9 @@ import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.modul
       username: 'root',
       password: 'flash',
       database: 'bdbeca',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false, // Cambia a false en producción
+      entities: [__dirname + '/**/*.entity{.ts,.js}'], // Escanea todas las entidades
+      synchronize: false, // Cambia a true solo para desarrollo; usa migraciones en producción
+      logging: true, // Opcional: Habilitar logs para depuración
     }),
     BecaEstadoModule,
     CarreraModule,
@@ -36,9 +36,9 @@ import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.modul
     AsignaturaModule,
     AsistenciaModule,
     NotaModule,
-    TipoBecaModule, // Asegúrate de que esté aquí
+    TipoBecaModule,
     PeriodoAcademicoModule,
-    RequisitoModule, // Asegúrate de que esté aquí
+    RequisitoModule,
     BecaModule,
     SolicitudBecaModule,
     AsignacionBecaModule,
@@ -46,4 +46,4 @@ import { AsignacionBecaModule } from './beca_asignacionbeca/asignacionbeca.modul
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {} // Asegúrate de que 'export' esté presente
+export class AppModule {}
