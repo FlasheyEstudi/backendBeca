@@ -1,7 +1,6 @@
 // src/periodoacademico/entities/periodoacademico.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-// No necesitamos importar forwardRef aquí para este uso en el decorador de TypeORM.
-// import { forwardRef } from '@nestjs/common';
+import { SolicitudBeca } from '../../beca_solicitudbeca/entities/solicitudbeca.entity'; // Asegúrate de que esta ruta sea correcta
 import { Asistencia } from '../../asistencia/entities/asistencia.entity'; // Asegura la ruta correcta
 import { Nota } from '../../nota/entities/nota.entity'; // Asegura la ruta correcta
 
@@ -19,11 +18,16 @@ export class PeriodoAcademico { // ¡Asegúrate de que 'export' esté aquí!
   @Column({ type: 'date', nullable: false })
   FechaFin: Date;
 
-  // Relación OneToMany con Asistencia (¡CORREGIDO: Sin forwardRef en el primer argumento!)
+  // Relación OneToMany con Asistencia
   @OneToMany(() => Asistencia, (asistencia) => asistencia.periodoAcademico)
   asistencias: Asistencia[];
 
-  // Relación OneToMany con Nota (¡CORREGIDO: Sin forwardRef en el primer argumento!)
+  // Relación OneToMany con Nota
   @OneToMany(() => Nota, (nota) => nota.periodoAcademico)
   notas: Nota[];
+
+  // --- NUEVO: Relación OneToMany con SolicitudBeca ---
+  // Esta es la propiedad inversa necesaria para la relación ManyToOne en SolicitudBeca.
+  @OneToMany(() => SolicitudBeca, (solicitudBeca) => solicitudBeca.periodoAcademico)
+  solicitudesBeca: SolicitudBeca[];
 }

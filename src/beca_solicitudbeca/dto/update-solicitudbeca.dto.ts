@@ -1,7 +1,7 @@
 // src/beca_solicitudbeca/dto/update-solicitudbeca.dto.ts
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateSolicitudBecaDto } from './create-solicitudbeca.dto';
-import { IsOptional, IsString, MaxLength, IsDateString, IsInt } from 'class-validator';
+import { IsOptional, IsString, MaxLength, IsDateString, IsInt, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
 // PartialType makes all properties of CreateSolicitudBecaDto optional.
@@ -25,4 +25,13 @@ export class UpdateSolicitudBecaDto extends PartialType(CreateSolicitudBecaDto) 
   @IsInt({ message: 'El ID de la beca debe ser un número entero.' })
   @Type(() => Number)
   BecaId?: number;
+
+  @IsOptional()
+  @IsInt({ message: 'El ID del período académico debe ser un número entero.' })
+  @Type(() => Number)
+  PeriodoAcademicoId?: number; // CAMBIADO: Renombrado de PeriodoId a PeriodoAcademicoId
+
+  @IsOptional()
+  @IsBoolean({ message: 'DocumentosVerificados debe ser un valor booleano.' })
+  DocumentosVerificados?: boolean; // Nuevo campo
 }

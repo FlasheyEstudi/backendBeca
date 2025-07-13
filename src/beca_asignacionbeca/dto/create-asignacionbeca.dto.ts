@@ -22,4 +22,6 @@ export class CreateAsignacionBecaDto {
   @IsInt({ message: 'El ID de la solicitud de beca debe ser un número entero.' })
   @Type(() => Number)
   SolicitudBecaId: number;
+
+  
 }

@@ -1,9 +1,13 @@
-// src/beca_asignacionbeca/dto/update-asignacionbeca.dto.ts
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateAsignacionBecaDto } from './create-asignacionbeca.dto';
+import { IsOptional, IsString, MaxLength, IsDateString, IsNumber, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
-// PartialType hace que todas las propiedades de CreateAsignacionBecaDto sean opcionales.
-// Esto es ideal para operaciones PATCH, donde solo se envían los campos a actualizar.
-export class UpdateAsignacionBecaDto extends PartialType(CreateAsignacionBecaDto) {
-  // Puedes añadir validaciones adicionales o propiedades específicas para la actualización aquí si es necesario.
+export class UpdateAsignacionBecaDto {
+  @IsOptional()
+  @IsString({ message: 'El estado de asignación debe ser una cadena de texto.' })
+  @MaxLength(50, { message: 'El estado de asignación no puede exceder los 50 caracteres.' })
+  EstadoAsignacion?: string;
+
+  @IsOptional()
+  @IsDateString({}, { message: 'La fecha de finalización debe ser una cadena de fecha válida (YYYY-MM-DD).' })
+  FechaFinalizacion?: string;
 }

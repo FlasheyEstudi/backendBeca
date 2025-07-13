@@ -1,113 +1,135 @@
 // src/beca_solicitudbeca/solicitudbeca.service.ts
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SolicitudBeca } from './entities/solicitudbeca.entity';
 import { CreateSolicitudBecaDto } from './dto/create-solicitudbeca.dto';
-import { UpdateSolicitudBecaDto } from './dto/update-solicitudbeca.dto'; // Importa el DTO de actualización
-import { Estudiante } from '../estudiante/entities/estudiante.entity'; // Importa Estudiante para validación
-import { Beca } from '../beca/entities/beca.entity'; // Importa Beca para validación
+import { UpdateSolicitudBecaDto } from './dto/update-solicitudbeca.dto';
+import { Estudiante } from '../estudiante/entities/estudiante.entity';
+import { Beca } from '../beca/entities/beca.entity';
+import { PeriodoAcademico } from '../periodoacademico/entities/periodoacademico.entity';
 
 @Injectable()
 export class SolicitudBecaService {
   constructor(
     @InjectRepository(SolicitudBeca)
     private readonly solicitudBecaRepository: Repository<SolicitudBeca>,
-    @InjectRepository(Estudiante) // Inyecta el repositorio de Estudiante
+    @InjectRepository(Estudiante)
     private readonly estudianteRepository: Repository<Estudiante>,
-    @InjectRepository(Beca) // Inyecta el repositorio de Beca
+    @InjectRepository(Beca)
     private readonly becaRepository: Repository<Beca>,
+    @InjectRepository(PeriodoAcademico)
+    private readonly periodoAcademicoRepository: Repository<PeriodoAcademico>,
   ) {}
 
-  // Método para crear una SolicitudBeca
   async create(createSolicitudBecaDto: CreateSolicitudBecaDto): Promise<SolicitudBeca> {
-    // 1. Verificar si el EstudianteId existe
+    console.log('createSolicitudBecaDto recibido en servicio:', createSolicitudBecaDto);
+
+    // Validar que PeriodoAcademicoId no sea 0 o nulo/indefinido
+    if (!createSolicitudBecaDto.PeriodoAcademicoId) {
+      throw new BadRequestException('El ID del período académico es requerido y debe ser un valor válido (no 0).');
+    }
+
     const estudiante = await this.estudianteRepository.findOne({ where: { Id: createSolicitudBecaDto.EstudianteId } });
     if (!estudiante) {
-      throw new NotFoundException(`Estudiante con ID ${createSolicitudBecaDto.EstudianteId} no encontrado.`);
+      throw new NotFoundException(`Estudiante con ID ${createSolicitudBecaDto.EstudianteId} no encontrado`);
     }
 
-    // 2. Verificar si el BecaId existe
     const beca = await this.becaRepository.findOne({ where: { Id: createSolicitudBecaDto.BecaId } });
     if (!beca) {
-      throw new NotFoundException(`Beca con ID ${createSolicitudBecaDto.BecaId} no encontrada.`);
+      throw new NotFoundException(`Beca con ID ${createSolicitudBecaDto.BecaId} no encontrada`);
     }
 
-    // Opcional: Verificar si ya existe una solicitud para el mismo estudiante y beca en estado pendiente
-    const existingSolicitud = await this.solicitudBecaRepository.findOne({
-      where: {
-        EstudianteId: createSolicitudBecaDto.EstudianteId,
-        BecaId: createSolicitudBecaDto.BecaId,
-        EstadoSolicitud: 'Pendiente' // Asumiendo que solo puede haber una pendiente por estudiante/beca
-      }
-    });
-
-    if (existingSolicitud) {
-      throw new ConflictException(`Ya existe una solicitud pendiente para el estudiante con ID ${createSolicitudBecaDto.EstudianteId} y la beca con ID ${createSolicitudBecaDto.BecaId}.`);
+    const periodoAcademico = await this.periodoAcademicoRepository.findOne({ where: { Id: createSolicitudBecaDto.PeriodoAcademicoId } });
+    if (!periodoAcademico) {
+      throw new NotFoundException(`Período académico con ID ${createSolicitudBecaDto.PeriodoAcademicoId} no encontrado`);
     }
 
-    // 3. Crear y guardar la nueva solicitud de beca
-    const nuevaSolicitud = this.solicitudBecaRepository.create({
-      ...createSolicitudBecaDto,
-      FechaSolicitud: createSolicitudBecaDto.FechaSolicitud ? new Date(createSolicitudBecaDto.FechaSolicitud) : undefined,
-      // EstadoSolicitud usará el default de la DB si no se proporciona
-    });
+    // Crear la instancia de la entidad directamente desde el DTO
+    const nuevaSolicitud = this.solicitudBecaRepository.create(createSolicitudBecaDto);
+
+    // Asignar las entidades de relación si es necesario (TypeORM usará los IDs del DTO, pero es buena práctica)
+    nuevaSolicitud.estudiante = estudiante;
+    nuevaSolicitud.beca = beca;
+    nuevaSolicitud.periodoAcademico = periodoAcademico;
+
+    // Asegurar que FechaSolicitud sea un objeto Date
+    if (typeof createSolicitudBecaDto.FechaSolicitud === 'string') {
+      nuevaSolicitud.FechaSolicitud = new Date(createSolicitudBecaDto.FechaSolicitud);
+    } else if (!nuevaSolicitud.FechaSolicitud) {
+        nuevaSolicitud.FechaSolicitud = new Date();
+    }
+    
+    // Asegurar que DocumentosVerificados tenga un valor booleano
+    if (typeof createSolicitudBecaDto.DocumentosVerificados !== 'boolean') {
+        nuevaSolicitud.DocumentosVerificados = false; // Valor por defecto si no se proporciona
+    }
+
+
+    console.log('Objeto nuevaSolicitud antes de guardar:', nuevaSolicitud);
     return await this.solicitudBecaRepository.save(nuevaSolicitud);
   }
 
-  // Método para obtener todas las SolicitudesBeca
+  // ... (El resto de los métodos findAll, findOne, update, remove no han cambiado en esta revisión)
+
   async findAll(): Promise<SolicitudBeca[]> {
-    return await this.solicitudBecaRepository.find({ relations: ['estudiante', 'beca'] }); // Incluye relaciones
+    return await this.solicitudBecaRepository.find({
+      relations: ['estudiante', 'beca', 'periodoAcademico'],
+    });
   }
 
-  // Método para obtener una SolicitudBeca por ID
   async findOne(id: number): Promise<SolicitudBeca> {
-    const solicitud = await this.solicitudBecaRepository.findOne({ where: { Id: id }, relations: ['estudiante', 'beca'] });
+    const solicitud = await this.solicitudBecaRepository.findOne({
+      where: { Id: id },
+      relations: ['estudiante', 'beca', 'periodoAcademico'],
+    });
     if (!solicitud) {
-      throw new NotFoundException(`Solicitud de Beca con ID ${id} no encontrada.`);
+      throw new NotFoundException(`Solicitud de beca con ID ${id} no encontrada`);
     }
     return solicitud;
   }
 
-  // --- NUEVO: Método para actualizar una SolicitudBeca ---
   async update(id: number, updateSolicitudBecaDto: UpdateSolicitudBecaDto): Promise<SolicitudBeca> {
     const solicitud = await this.solicitudBecaRepository.findOne({ where: { Id: id } });
     if (!solicitud) {
-      throw new NotFoundException(`Solicitud de Beca con ID ${id} no encontrada.`);
+      throw new NotFoundException(`Solicitud de beca con ID ${id} no encontrada`);
     }
 
-    // Si se intenta actualizar EstudianteId, verificar que el nuevo ID exista
-    if (updateSolicitudBecaDto.EstudianteId && updateSolicitudBecaDto.EstudianteId !== solicitud.EstudianteId) {
+    if (updateSolicitudBecaDto.EstudianteId) {
       const estudiante = await this.estudianteRepository.findOne({ where: { Id: updateSolicitudBecaDto.EstudianteId } });
       if (!estudiante) {
-        throw new NotFoundException(`Estudiante con ID ${updateSolicitudBecaDto.EstudianteId} no encontrado.`);
+        throw new NotFoundException(`Estudiante con ID ${updateSolicitudBecaDto.EstudianteId} no encontrado`);
       }
+      solicitud.estudiante = estudiante;
+      solicitud.EstudianteId = updateSolicitudBecaDto.EstudianteId;
     }
 
-    // Si se intenta actualizar BecaId, verificar que el nuevo ID exista
-    if (updateSolicitudBecaDto.BecaId && updateSolicitudBecaDto.BecaId !== solicitud.BecaId) {
+    if (updateSolicitudBecaDto.BecaId) {
       const beca = await this.becaRepository.findOne({ where: { Id: updateSolicitudBecaDto.BecaId } });
       if (!beca) {
-        throw new NotFoundException(`Beca con ID ${updateSolicitudBecaDto.BecaId} no encontrada.`);
+        throw new NotFoundException(`Beca con ID ${updateSolicitudBecaDto.BecaId} no encontrada`);
       }
+      solicitud.beca = beca;
+      solicitud.BecaId = updateSolicitudBecaDto.BecaId;
     }
 
-    // Manejar FechaSolicitud si se actualiza
-    if (updateSolicitudBecaDto.FechaSolicitud) {
-      solicitud.FechaSolicitud = new Date(updateSolicitudBecaDto.FechaSolicitud);
-      delete updateSolicitudBecaDto.FechaSolicitud; // Eliminar del DTO para que merge no intente asignar string a Date
+    if (updateSolicitudBecaDto.PeriodoAcademicoId) {
+      const periodoAcademico = await this.periodoAcademicoRepository.findOne({ where: { Id: updateSolicitudBecaDto.PeriodoAcademicoId } });
+      if (!periodoAcademico) {
+        throw new NotFoundException(`Período académico con ID ${updateSolicitudBecaDto.PeriodoAcademicoId} no encontrado`);
+      }
+      solicitud.periodoAcademico = periodoAcademico;
+      solicitud.PeriodoAcademicoId = updateSolicitudBecaDto.PeriodoAcademicoId;
     }
 
-    // Aplica los cambios restantes del DTO al objeto de la solicitud existente
     this.solicitudBecaRepository.merge(solicitud, updateSolicitudBecaDto);
     return await this.solicitudBecaRepository.save(solicitud);
   }
 
-  // --- NUEVO: Método para eliminar una SolicitudBeca ---
   async remove(id: number): Promise<void> {
     const result = await this.solicitudBecaRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Solicitud de Beca con ID ${id} no encontrada.`);
+      throw new NotFoundException(`Solicitud de beca con ID ${id} no encontrada`);
     }
   }
 }

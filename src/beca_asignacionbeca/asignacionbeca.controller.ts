@@ -1,41 +1,35 @@
-// src/beca_asignacionbeca/asignacionbeca.controller.ts
-import { Controller, Get, Post, Body, Param, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common'; // Añadidos Patch, Delete, HttpCode, HttpStatus
-import { AsignacionBecaService } from './asignacionbeca.service';
-import { CreateAsignacionBecaDto } from './dto/create-asignacionbeca.dto'; // Importa el DTO de creación
-import { UpdateAsignacionBecaDto } from './dto/update-asignacionbeca.dto'; // Importa el DTO de actualización
+import { Controller, Get, Post, Body, Param, Patch, Delete, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { BecaAsignacionBecaService } from './asignacionbeca.service'; // Corrección aquí
+import { CreateAsignacionBecaDto } from './dto/create-asignacionbeca.dto';
+import { UpdateAsignacionBecaDto } from './dto/update-asignacionbeca.dto';
 
-@Controller('asignacionbeca')
+@Controller('beca-asignacionbeca')
 export class AsignacionBecaController {
-  constructor(private readonly asignacionBecaService: AsignacionBecaService) {}
+  constructor(private readonly becaAsignacionService: BecaAsignacionBecaService) {}
 
-  // Ruta para crear una AsignacionBeca
-  @Post() // Esta es la ruta para POST /asignacionbeca
+  @Post()
   async create(@Body() createAsignacionBecaDto: CreateAsignacionBecaDto) {
-    return this.asignacionBecaService.create(createAsignacionBecaDto);
+    return this.becaAsignacionService.create(createAsignacionBecaDto);
   }
 
-  // Ruta para obtener todas las AsignacionesBeca
-  @Get() // Esta es la ruta para GET /asignacionbeca
+  @Get()
   findAll() {
-    return this.asignacionBecaService.findAll();
+    return this.becaAsignacionService.findAll();
   }
 
-  // --- Ruta para obtener una AsignacionBeca por ID ---
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.asignacionBecaService.findOne(Number(id));
+    return this.becaAsignacionService.findOne(Number(id));
   }
 
-  // --- Ruta para actualizar una AsignacionBeca (PATCH) ---
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateAsignacionBecaDto: UpdateAsignacionBecaDto) {
-    return this.asignacionBecaService.update(Number(id), updateAsignacionBecaDto);
+    return this.becaAsignacionService.update(Number(id), updateAsignacionBecaDto);
   }
 
-  // --- Ruta para eliminar una AsignacionBeca (DELETE) ---
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT) // Devuelve 204 No Content en caso de éxito
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
-    await this.asignacionBecaService.remove(Number(id));
+    await this.becaAsignacionService.remove(Number(id));
   }
 }

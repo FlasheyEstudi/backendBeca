@@ -109,45 +109,48 @@ export class BecaService {
   }
 
   // ✔ Verificar requisitos
-  async verificarRequisitos(
-    estudianteId: number,
-    tipoBecaId: number,
-    periodoId: number,
-  ): Promise<{ cumple: boolean; mensaje: string }> {
-    this.logger.debug(
-      `Llamando a sp_verificar_requisitos_beca con: estudianteId=${estudianteId}, tipoBecaId=${tipoBecaId}, periodoId=${periodoId}`,
+ // ✔ Verificar requisitos
+async verificarRequisitos(
+  estudianteId: number,
+  tipoBecaId: number,
+  periodoId: number,
+): Promise<{ cumple: boolean; mensaje: string }> {
+  this.logger.debug(
+    `Llamando a sp_verificar_requisitos_beca con: estudianteId=${estudianteId}, tipoBecaId=${tipoBecaId}, periodoId=${periodoId}`,
+  );
+  try {
+    await this.dataSource.query(
+      'CALL sp_verificar_requisitos_beca(?, ?, ?, @p_cumple, @p_mensaje)',
+      [estudianteId, tipoBecaId, periodoId],
     );
-    try {
-      await this.dataSource.query(
-        'CALL sp_verificar_requisitos_beca(?, ?, ?, @p_cumple, @p_mensaje)',
-        [estudianteId, tipoBecaId, periodoId],
-      );
 
-      const result = await this.dataSource.query(
-        'SELECT @p_cumple AS cumple, @p_mensaje AS mensaje',
-      );
-      this.logger.debug('Resultado del procedimiento:', result);
+    const result = await this.dataSource.query(
+      'SELECT @p_cumple AS cumple, @p_mensaje AS mensaje',
+    );
 
-      if (result && result.length > 0) {
-        return {
-          cumple: result[0].cumple === 1 || result[0].cumple === true,
-          mensaje: result[0].mensaje,
-        };
-      } else {
-        this.logger.warn('Resultado vacío del SP.');
-        return {
-          cumple: false,
-          mensaje: 'No se pudo procesar el procedimiento almacenado.',
-        };
-      }
-    } catch (error) {
-      this.logger.error(
-        `Error en sp_verificar_requisitos_beca: ${error.message}`,
-        error.stack,
-      );
-      throw error;
+    this.logger.debug('Resultado del procedimiento:', result);
+
+    if (result && result.length > 0) {
+      return {
+        cumple: result[0].cumple === '1' || result[0].cumple === 1, // ✅ Conversión explícita
+        mensaje: result[0].mensaje,
+      };
+    } else {
+      this.logger.warn('Resultado vacío del SP.');
+      return {
+        cumple: false,
+        mensaje: 'No se pudo procesar el procedimiento almacenado.',
+      };
     }
+  } catch (error) {
+    this.logger.error(
+      `Error en sp_verificar_requisitos_beca: ${error.message}`,
+      error.stack,
+    );
+    throw error;
   }
+}
+
 
   // ✔ Asignar beca
   async asignarBeca(

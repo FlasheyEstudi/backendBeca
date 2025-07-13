@@ -1,13 +1,12 @@
 // src/beca_solicitudbeca/entities/solicitudbeca.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-// No necesitamos forwardRef aquí si Beca ya usa forwardRef en su OneToMany de forma adecuada.
-// import { forwardRef } from '@nestjs/common';
-import { Estudiante } from '../../estudiante/entities/estudiante.entity'; // Asegura la ruta correcta a Estudiante
-import { Beca } from '../../beca/entities/beca.entity'; // Asegura la ruta correcta a Beca
-import { AsignacionBeca } from '../../beca_asignacionbeca/entities/asignacionbeca.entity'; // Asegura la ruta correcta a AsignacionBeca
+import { Estudiante } from '../../estudiante/entities/estudiante.entity';
+import { Beca } from '../../beca/entities/beca.entity';
+import { BecaAsignacionBeca } from '../../beca_asignacionbeca/entities/asignacionbeca.entity';
+import { PeriodoAcademico } from '../../periodoacademico/entities/periodoacademico.entity';
 
 @Entity('beca_solicitudbeca')
-export class SolicitudBeca { // ¡Asegúrate de que 'export' esté aquí!
+export class SolicitudBeca {
   @PrimaryGeneratedColumn()
   Id: number;
 
@@ -15,7 +14,7 @@ export class SolicitudBeca { // ¡Asegúrate de que 'export' esté aquí!
   FechaSolicitud: Date;
 
   @Column({ type: 'varchar', length: 50, nullable: false, default: 'Pendiente' })
-  EstadoSolicitud: string; // Ej. 'Pendiente', 'Aprobada', 'Rechazada'
+  EstadoSolicitud: string;
 
   // --- Relación ManyToOne con Estudiante ---
   @ManyToOne(() => Estudiante, (estudiante) => estudiante.solicitudesBeca)
@@ -26,15 +25,29 @@ export class SolicitudBeca { // ¡Asegúrate de que 'export' esté aquí!
   EstudianteId: number;
 
   // --- RELACIÓN CRUCIAL: ManyToOne con Beca ---
-  // 'solicitudesBeca' es la propiedad en la entidad Beca que apunta a esta solicitud
-  @ManyToOne(() => Beca, (beca) => beca.solicitudesBeca) // Aquí no se usa forwardRef, ya que Beca lo usa en su OneToMany
+  @ManyToOne(() => Beca, (beca) => beca.solicitudesBeca)
   @JoinColumn({ name: 'BecaId' })
-  beca: Beca; // ¡Esta propiedad 'beca' es necesaria para la relación inversa!
+  beca: Beca;
 
   @Column({ name: 'BecaId', type: 'int', nullable: false })
   BecaId: number;
 
+  // --- Relación ManyToOne con PeriodoAcademico ---
+  @ManyToOne(() => PeriodoAcademico, (periodo) => periodo.solicitudesBeca)
+  @JoinColumn({ name: 'PeriodoAcademicoId' })
+  periodoAcademico: PeriodoAcademico;
+
+  // *** CAMBIO AQUÍ: Añadido default: null ***
+  // Esto es un workaround para que TypeORM no intente insertar 'DEFAULT'
+  // si la columna es NOT NULL y no tiene un DEFAULT en la DB.
+  @Column({ name: 'PeriodoAcademicoId', type: 'int', nullable: false, default: null })
+  PeriodoAcademicoId: number;
+
+  // --- NUEVO: Campo para la verificación manual de documentos ---
+  @Column({ type: 'boolean', nullable: false, default: false })
+  DocumentosVerificados: boolean;
+
   // --- Relación OneToMany con AsignacionBeca ---
-  @OneToMany(() => AsignacionBeca, (asignacionBeca) => asignacionBeca.solicitudBeca)
-  asignacionesBeca: AsignacionBeca[];
+  @OneToMany(() => BecaAsignacionBeca, (asignacionBeca) => asignacionBeca.solicitudBeca)
+  asignacionesBeca: BecaAsignacionBeca[];
 }
